@@ -1,5 +1,10 @@
 import { Player } from './player';
 
+type Movement = {
+  base: number[];
+  jump: number[];
+};
+
 export class Piece {
   protected row: number;
   protected column: number;
@@ -11,15 +16,27 @@ export class Piece {
     this.player = player;
   }
 
-  getPossibleMovements() {
+  getPossibleMovements(): Movement[] {
     const movements = new Map()
       .set(1, [
-        [this.row + 1, this.column - 1],
-        [this.row + 1, this.column + 1],
+        {
+          base: [this.row + 1, this.column - 1],
+          jump: [this.row + 2, this.column - 2],
+        },
+        {
+          base: [this.row + 1, this.column + 1],
+          jump: [this.row + 2, this.column + 2],
+        },
       ])
       .set(2, [
-        [this.row - 1, this.column - 1],
-        [this.row - 1, this.column + 1],
+        {
+          base: [this.row - 1, this.column - 1],
+          jump: [this.row - 2, this.column - 2],
+        },
+        {
+          base: [this.row - 1, this.column + 1],
+          jump: [this.row - 1, this.column + 1],
+        },
       ]);
     return movements.get(this.player.playerOrder) || [];
   }

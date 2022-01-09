@@ -99,6 +99,27 @@ describe('GameService', () => {
       expect(() => service.movePiece(params)).toThrow('OccupiedTile');
     });
 
+    it('should throw an error if a jump is available', () => {
+      const { gameId, accessToken } = service.create();
+      service.join(gameId, accessToken);
+      service.movePiece({
+        accessToken,
+        currentPiecePosition: [2, 1],
+        newPiecePosition: [3, 2],
+      });
+      service.movePiece({
+        accessToken,
+        currentPiecePosition: [5, 0],
+        newPiecePosition: [4, 1],
+      });
+      const params = {
+        accessToken,
+        currentPiecePosition: [3, 2],
+        newPiecePosition: [4, 3],
+      };
+      expect(() => service.movePiece(params)).toThrow('UserMustJump');
+    });
+
     it('should perform a simple play', () => {
       const { gameId, accessToken } = service.create();
       service.join(gameId, accessToken);
@@ -115,6 +136,36 @@ describe('GameService', () => {
         [0, 0, 1, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [2, 0, 2, 0, 2, 0, 2, 0],
+        [0, 2, 0, 2, 0, 2, 0, 2],
+        [2, 0, 2, 0, 2, 0, 2, 0],
+      ]);
+    });
+
+    it('should perform a jump', () => {
+      const { gameId, accessToken } = service.create();
+      service.join(gameId, accessToken);
+      service.movePiece({
+        accessToken,
+        currentPiecePosition: [2, 1],
+        newPiecePosition: [3, 2],
+      });
+      service.movePiece({
+        accessToken,
+        currentPiecePosition: [5, 0],
+        newPiecePosition: [4, 1],
+      });
+      const boardState = service.movePiece({
+        accessToken,
+        currentPiecePosition: [3, 2],
+        newPiecePosition: [5, 0],
+      });
+      expect(boardState).toEqual([
+        [0, 1, 0, 1, 0, 1, 0, 1],
+        [1, 0, 1, 0, 1, 0, 1, 0],
+        [0, 0, 0, 1, 0, 1, 0, 1],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [1, 0, 2, 0, 2, 0, 2, 0],
         [0, 2, 0, 2, 0, 2, 0, 2],
         [2, 0, 2, 0, 2, 0, 2, 0],
       ]);

@@ -36,6 +36,10 @@ export class Game {
   }
 
   makePlay(currentPiecePosition: number[], newPiecePosition: number[]) {
+    const isJumpAvailable = this.board.isJumpAvailable(this.playerTurn);
+    if (isJumpAvailable) {
+      throw new Error('UserMustJump');
+    }
     this.board.makeMovement(
       this.playerTurn,
       currentPiecePosition,

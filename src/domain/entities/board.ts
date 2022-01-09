@@ -41,8 +41,8 @@ export class Board {
     const newMovementExists = oldTile
       .getPiece()
       .getPossibleMovements()
-      .filter(([row, column]) => this.isMovementValid(row, column))
-      .find((movement) => equals(movement, [newRow, newColumn]));
+      .filter(({ base: [row, column] }) => this.isMovementValid(row, column))
+      .find((movement) => equals(movement.base, [newRow, newColumn]));
     if (!newMovementExists) {
       throw new Error('InvalidMovement');
     }
@@ -56,6 +56,27 @@ export class Board {
   getState() {
     return this.grid.map((rows) => {
       return rows.map((tile) => tile.getPiece()?.player.playerOrder ?? 0);
+    });
+  }
+
+  isJumpAvailable(playerTurn: number) {
+    return this.grid.some((row) => {
+      return row.some((tile) => {
+        if (!tile.isOccupied()) return;
+        const piece = tile.getPiece();
+        if (!piece.player.isPlayerTurn(playerTurn)) return;
+
+        return piece.getPossibleMovements().some(({ base, jump }) => {
+          const [row, column] = base;
+          const [jumpRow, jumpColumn] = jump;
+          const tile = this.grid[row][column];
+          const isOpponentTile =
+            tile?.isOccupied() &&
+            !tile?.getPiece().player.isPlayerTurn(playerTurn);
+
+          return isOpponentTile && this.isMovementValid(jumpRow, jumpColumn);
+        });
+      });
     });
   }
 
