@@ -82,8 +82,8 @@ describe('GameService', () => {
       service.join(gameId, accessToken);
       const params = {
         accessToken,
-        currentPiecePosition: [5, 0],
-        newPiecePosition: [5, 3],
+        currentPiecePosition: [2, 1],
+        newPiecePosition: [3, 1],
       };
       expect(() => service.movePiece(params)).toThrow('InvalidMovement');
     });

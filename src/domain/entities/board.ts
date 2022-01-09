@@ -25,7 +25,7 @@ export class Board {
     });
   }
 
-  makeMovement(
+  move(
     playerTurn: number,
     [oldRow, oldColumn]: number[],
     [newRow, newColumn]: number[],
@@ -38,19 +38,16 @@ export class Board {
     if (newTile.isOccupied()) {
       throw new Error('OccupiedTile');
     }
-    const newMovementExists = oldTile
-      .getPiece()
-      .getPossibleMovements()
-      .filter(({ base: [row, column] }) => this.isMovementValid(row, column))
-      .find((movement) => equals(movement.base, [newRow, newColumn]));
-    if (!newMovementExists) {
-      throw new Error('InvalidMovement');
-    }
-    if (!oldTile.getPiece().player.isPlayerTurn(playerTurn)) {
+    if (!oldTile.isPlayerTurn(playerTurn)) {
       throw new Error('NotPlayerTurn');
     }
-    newTile.setPiece(oldTile.getPiece());
-    oldTile.empty();
+    const isJump = oldTile.movements
+      .filter(({ jump: [row, column] }) => this.isMovementValid(row, column))
+      .find((movement) => equals(movement.jump, [newRow, newColumn]));
+    if (isJump) {
+      return this.makeJump(oldTile, newTile);
+    }
+    return this.makeMovement(oldTile, newTile);
   }
 
   getState() {
@@ -59,25 +56,53 @@ export class Board {
     });
   }
 
-  isJumpAvailable(playerTurn: number) {
+  isJumpAvailable(playerTurn: number, newPiecePosition: number[]) {
     return this.grid.some((row) => {
       return row.some((tile) => {
-        if (!tile.isOccupied()) return;
-        const piece = tile.getPiece();
-        if (!piece.player.isPlayerTurn(playerTurn)) return;
+        if (!tile.isOccupied() || !tile.isPlayerTurn(playerTurn)) return;
 
-        return piece.getPossibleMovements().some(({ base, jump }) => {
+        return tile.movements.some(({ base, jump }) => {
           const [row, column] = base;
           const [jumpRow, jumpColumn] = jump;
-          const tile = this.grid[row][column];
+          const nextTile = this.grid[row][column];
           const isOpponentTile =
-            tile?.isOccupied() &&
-            !tile?.getPiece().player.isPlayerTurn(playerTurn);
+            nextTile?.isOccupied() && !nextTile?.isPlayerTurn(playerTurn);
 
-          return isOpponentTile && this.isMovementValid(jumpRow, jumpColumn);
+          return (
+            isOpponentTile &&
+            this.isMovementValid(jumpRow, jumpColumn) &&
+            !equals(newPiecePosition, jump)
+          );
         });
       });
     });
+  }
+
+  private makeMovement(oldTile: Tile, newTile: Tile) {
+    const newMovementExists = oldTile.movements
+      .filter(({ base: [row, column] }) => this.isMovementValid(row, column))
+      .find((movement) => newTile.equals(movement.base));
+    if (!newMovementExists) {
+      throw new Error('InvalidMovement');
+    }
+    newTile.setPiece(oldTile.getPiece());
+    oldTile.empty();
+  }
+
+  private makeJump(oldTile: Tile, newTile: Tile) {
+    const {
+      base: [row, column],
+    } = oldTile.movements.find(
+      ({ jump: [row, column] }) =>
+        this.isMovementValid(row, column) && newTile.equals([row, column]),
+    );
+    if (!row && !column) {
+      throw new Error('InvalidMovement');
+    }
+    const removedTile = this.grid[row][column];
+    newTile.setPiece(oldTile.getPiece());
+    oldTile.empty();
+    removedTile.empty();
   }
 
   private isMovementValid(row: number, column: number): boolean {

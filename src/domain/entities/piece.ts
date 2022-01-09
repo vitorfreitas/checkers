@@ -1,6 +1,6 @@
 import { Player } from './player';
 
-type Movement = {
+export type Movement = {
   base: number[];
   jump: number[];
 };
@@ -35,7 +35,7 @@ export class Piece {
         },
         {
           base: [this.row - 1, this.column + 1],
-          jump: [this.row - 1, this.column + 1],
+          jump: [this.row - 2, this.column + 2],
         },
       ]);
     return movements.get(this.player.playerOrder) || [];

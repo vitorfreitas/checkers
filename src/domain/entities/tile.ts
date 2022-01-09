@@ -1,4 +1,5 @@
-import { Piece } from './piece';
+import { Movement, Piece } from './piece';
+import { equals } from "ramda";
 
 export class Tile {
   public readonly row: number;
@@ -26,5 +27,17 @@ export class Tile {
 
   empty() {
     this.piece = null;
+  }
+
+  isPlayerTurn(playerTurn: number) {
+    return this.piece.player.isPlayerTurn(playerTurn);
+  }
+
+  equals(position: number[]) {
+    return equals(position, [this.row, this.column]);
+  }
+
+  get movements(): Movement[] {
+    return this.piece.getPossibleMovements();
   }
 }
