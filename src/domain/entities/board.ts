@@ -2,12 +2,14 @@ import { equals } from 'ramda';
 import { Piece } from './piece';
 import { Tile } from './tile';
 import { Player } from './player';
-import { INITIAL_BOARD } from '../shared/constants/board';
+import {
+  INITIAL_BOARD,
+  MAX_COLUMN_LENGTH,
+  MAX_ROW_LENGTH,
+  MIN_COLUMN_LENGTH,
+  MIN_ROW_LENGTH
+} from "../shared/constants/board";
 
-const MAX_ROW_LENGTH = 7;
-const MIN_ROW_LENGTH = 0;
-const MAX_COLUMN_LENGTH = 7;
-const MIN_COLUMN_LENGTH = 0;
 const xAxisLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 export class Board {
@@ -64,7 +66,7 @@ export class Board {
         return tile.movements.some(({ base, jump }) => {
           const [row, column] = base;
           const [jumpRow, jumpColumn] = jump;
-          const nextTile = this.grid[row][column];
+          const nextTile = this.grid[row]?.[column];
           const isOpponentTile =
             nextTile?.isOccupied() && !nextTile?.isPlayerTurn(playerTurn);
 
@@ -76,6 +78,10 @@ export class Board {
         });
       });
     });
+  }
+
+  getPiece(row: number, column: number): Piece | null {
+    return this.grid[row][column].getPiece();
   }
 
   private makeMovement(oldTile: Tile, newTile: Tile) {

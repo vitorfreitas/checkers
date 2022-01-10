@@ -170,6 +170,32 @@ describe('GameService', () => {
         [2, 0, 2, 0, 2, 0, 2, 0],
       ]);
     });
+
+    it('should crown a king', () => {
+      const { gameId, accessToken } = service.create();
+      service.join(gameId, accessToken);
+      const moves = [
+        { a: [2, 1], b: [3, 2] },
+        { a: [5, 0], b: [4, 1] },
+        { a: [3, 2], b: [5, 0] },
+        { a: [5, 2], b: [4, 3] },
+        { a: [2, 5], b: [3, 6] },
+        { a: [6, 1], b: [5, 2] },
+        { a: [1, 0], b: [2, 1] },
+        { a: [7, 2], b: [6, 1] },
+        { a: [5, 0], b: [7, 2] },
+      ];
+      moves.forEach((move) => {
+        service.movePiece({
+          accessToken,
+          currentPiecePosition: move.a,
+          newPiecePosition: move.b,
+        });
+      });
+      const piece = service.getPieceStatus(accessToken, 7, 2);
+
+      expect(piece.constructor.name).toEqual('King');
+    });
   });
 
   describe('getBoardState', () => {

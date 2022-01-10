@@ -1,5 +1,7 @@
 import { Movement, Piece } from './piece';
-import { equals } from "ramda";
+import { equals } from 'ramda';
+import { King } from './king';
+import { MAX_ROW_LENGTH, MIN_ROW_LENGTH } from '../shared/constants/board';
 
 export class Tile {
   public readonly row: number;
@@ -19,6 +21,10 @@ export class Tile {
   setPiece(piece: Piece) {
     this.piece = piece;
     this.piece.setCoords(this.row, this.column);
+
+    if (this.isEdgeTile()) {
+      this.piece = new King(this.row, this.column, this.piece.player);
+    }
   }
 
   getPiece() {
@@ -35,6 +41,10 @@ export class Tile {
 
   equals(position: number[]) {
     return equals(position, [this.row, this.column]);
+  }
+
+  isEdgeTile() {
+    return this.row === MIN_ROW_LENGTH || this.row === MAX_ROW_LENGTH;
   }
 
   get movements(): Movement[] {
