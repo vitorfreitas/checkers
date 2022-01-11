@@ -55,8 +55,13 @@ export class GameService {
     const game = this.findOneByToken(accessToken);
     const piece = game.getBoard().getPiece(row, column);
     if (!piece) {
-      throw new Error('Piece not found');
+      throw new Error('PieceNotFound');
     }
     return piece;
+  }
+
+  getGameStatus(accessToken: string) {
+    const game = this.findOneByToken(accessToken);
+    return game.getStatus();
   }
 }

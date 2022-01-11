@@ -1,4 +1,4 @@
-import { equals } from 'ramda';
+import { countBy, equals, head, isEmpty } from 'ramda';
 import { Piece } from './piece';
 import { Tile } from './tile';
 import { Player } from './player';
@@ -7,8 +7,9 @@ import {
   MAX_COLUMN_LENGTH,
   MAX_ROW_LENGTH,
   MIN_COLUMN_LENGTH,
-  MIN_ROW_LENGTH
-} from "../shared/constants/board";
+  MIN_ROW_LENGTH,
+} from '../shared/constants/board';
+import { Players } from '../shared/constants/game';
 
 const xAxisLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
@@ -58,7 +59,41 @@ export class Board {
     });
   }
 
-  isJumpAvailable(playerTurn: number, newPiecePosition: number[]) {
+  isJumpMovement(
+    playerTurn: number,
+    [row, column]: number[],
+    newPiecePosition: number[],
+  ): boolean {
+    const currentTile = this.grid[row][column];
+    return currentTile.movements.some(({ base, jump }) => {
+      const [row, column] = base;
+      const [jumpRow, jumpColumn] = jump;
+      const nextTile = this.grid[row]?.[column];
+      const isOpponentTile =
+        nextTile?.isOccupied() && !nextTile?.isPlayerTurn(playerTurn);
+
+      return (
+        isOpponentTile &&
+        this.isMovementValid(jumpRow, jumpColumn) &&
+        equals(newPiecePosition, jump)
+      );
+    });
+  }
+
+  playerMustJump(
+    playerTurn: number,
+    currentPiecePosition: number[],
+    newPiecePosition: number[],
+  ): boolean {
+    const isJump = this.isJumpMovement(
+      playerTurn,
+      currentPiecePosition,
+      newPiecePosition,
+    );
+    if (isJump) {
+      return false;
+    }
+
     return this.grid.some((row) => {
       return row.some((tile) => {
         if (!tile.isOccupied() || !tile.isPlayerTurn(playerTurn)) return;
@@ -70,11 +105,7 @@ export class Board {
           const isOpponentTile =
             nextTile?.isOccupied() && !nextTile?.isPlayerTurn(playerTurn);
 
-          return (
-            isOpponentTile &&
-            this.isMovementValid(jumpRow, jumpColumn) &&
-            !equals(newPiecePosition, jump)
-          );
+          return isOpponentTile && this.isMovementValid(jumpRow, jumpColumn);
         });
       });
     });
@@ -82,6 +113,24 @@ export class Board {
 
   getPiece(row: number, column: number): Piece | null {
     return this.grid[row][column].getPiece();
+  }
+
+  getWinner(): Player | null {
+    const pieces = this.grid.flat().filter((tile) => tile.isOccupied());
+    const playerOnePieces = pieces.filter(
+      (tile) => tile.getPiece().player.playerOrder === Players.ONE,
+    );
+    const playerTwoPieces = pieces.filter(
+      (tile) => tile.getPiece().player.playerOrder === Players.TWO,
+    );
+    if (isEmpty(playerOnePieces)) {
+      return head(playerTwoPieces).getPiece().player;
+    }
+    if (isEmpty(playerTwoPieces)) {
+      return head(playerOnePieces).getPiece().player;
+    }
+
+    return null;
   }
 
   private makeMovement(oldTile: Tile, newTile: Tile) {
@@ -121,6 +170,7 @@ export class Board {
       return false;
     }
     const tile = this.grid[row][column];
+
     return !tile.isOccupied();
   }
 }

@@ -36,19 +36,26 @@ export class Game {
   }
 
   makePlay(currentPiecePosition: number[], newPiecePosition: number[]) {
-    const userMustJump = this.board.isJumpAvailable(
+    const playerMustJump = this.board.playerMustJump(
       this.playerTurn,
+      currentPiecePosition,
       newPiecePosition,
     );
-    if (userMustJump) {
+    if (playerMustJump) {
       throw new Error('UserMustJump');
     }
-    this.board.move(this.playerTurn, currentPiecePosition, newPiecePosition);
-    const isJumpAvailable = this.board.isJumpAvailable(
+    const isJumpMove = this.board.isJumpMovement(
       this.playerTurn,
+      currentPiecePosition,
       newPiecePosition,
     );
-    if (!isJumpAvailable) {
+    this.board.move(this.playerTurn, currentPiecePosition, newPiecePosition);
+    const isJumpAvailable = this.board.playerMustJump(
+      this.playerTurn,
+      currentPiecePosition,
+      newPiecePosition,
+    );
+    if (!isJumpMove || !isJumpAvailable) {
       this.changePlayerTurn();
     }
   }
@@ -62,5 +69,14 @@ export class Game {
 
   getBoard() {
     return this.board;
+  }
+
+  getStatus(): string {
+    const winner = this.board.getWinner();
+    if (winner) {
+      return `player_${winner.playerOrder} won`;
+    }
+
+    return `player_${this.playerTurn} turn`;
   }
 }

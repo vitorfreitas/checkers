@@ -48,6 +48,6 @@ export class Tile {
   }
 
   get movements(): Movement[] {
-    return this.piece.getPossibleMovements();
+    return this.piece?.getPossibleMovements() ?? [];
   }
 }
