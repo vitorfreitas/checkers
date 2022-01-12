@@ -45,4 +45,8 @@ export class Piece {
     this.row = row;
     this.column = column;
   }
+
+  isKing(): boolean {
+    return false;
+  }
 }

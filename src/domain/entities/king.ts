@@ -21,4 +21,8 @@ export class King extends Piece {
       },
     ];
   }
+
+  isKing(): boolean {
+    return true;
+  }
 }

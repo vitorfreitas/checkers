@@ -1,11 +1,9 @@
-import * as uuid from 'uuid';
-
 export class Player {
-  public readonly uuid: string;
+  public readonly id: number;
   public readonly playerOrder: number;
 
-  constructor(playerOrder: number) {
-    this.uuid = uuid.v4();
+  constructor(id: number, playerOrder: number) {
+    this.id = id;
     this.playerOrder = playerOrder;
   }
 

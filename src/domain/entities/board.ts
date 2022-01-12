@@ -1,4 +1,4 @@
-import { countBy, equals, head, isEmpty } from 'ramda';
+import { equals, head, isEmpty } from 'ramda';
 import { Piece } from './piece';
 import { Tile } from './tile';
 import { Player } from './player';
@@ -11,21 +11,11 @@ import {
 } from '../shared/constants/board';
 import { Players } from '../shared/constants/game';
 
-const xAxisLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-
 export class Board {
   grid: Tile[][];
 
-  initialize(player1: Player, player2: Player) {
-    const players = new Map().set(1, player1).set(2, player2);
-    this.grid = INITIAL_BOARD.map((row, rowIndex) => {
-      return row.map((playerId, columnIndex) => {
-        const player = players.get(playerId);
-        const piece =
-          playerId > 0 ? new Piece(rowIndex, columnIndex, player) : null;
-        return new Tile(rowIndex, columnIndex, piece);
-      });
-    });
+  constructor(grid: Tile[][]) {
+    this.grid = grid;
   }
 
   move(
@@ -47,10 +37,9 @@ export class Board {
     const isJump = oldTile.movements
       .filter(({ jump: [row, column] }) => this.isMovementValid(row, column))
       .find((movement) => equals(movement.jump, [newRow, newColumn]));
-    if (isJump) {
-      return this.makeJump(oldTile, newTile);
-    }
-    return this.makeMovement(oldTile, newTile);
+    return isJump
+      ? this.makeJump(oldTile, newTile)
+      : this.makeMovement(oldTile, newTile);
   }
 
   getState() {
@@ -131,6 +120,26 @@ export class Board {
     }
 
     return null;
+  }
+
+  static createGrid(player1: Player, player2: Player): Tile[][] {
+    const players = new Map().set(1, player1).set(2, player2);
+    return INITIAL_BOARD.map((row, rowIndex) => {
+      return row.map((playerId, columnIndex) => {
+        const player = players.get(playerId);
+        const piece =
+          playerId > 0 ? new Piece(rowIndex, columnIndex, player) : null;
+        return new Tile(rowIndex, columnIndex, piece);
+      });
+    });
+  }
+
+  static createEmptyGrid(): Tile[][] {
+    return INITIAL_BOARD.map((row, rowIndex) => {
+      return row.map((playerId, columnIndex) => {
+        return new Tile(rowIndex, columnIndex, null);
+      });
+    });
   }
 
   private makeMovement(oldTile: Tile, newTile: Tile) {

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameService } from './game.service';
 import { GameRepository } from '../../../domain/repositories/game-repository';
-import { GameRepositoryMemory } from '../../../infrastructure/database/memory/game-repository-memory';
+import { GameRepositoryMemory } from '../../../infrastructure/storage/memory/repositories/game-repository-memory';
 import { INITIAL_BOARD } from '../../../domain/shared/constants/board';
 
 const player1WinGame = [
@@ -62,92 +62,94 @@ describe('GameService', () => {
   });
 
   describe('create', () => {
-    it('should create a new game', () => {
-      const { gameId, accessToken } = service.create();
-      expect(gameId).toEqual(1);
-      expect(accessToken).toMatch(`${gameId}${new Date().getFullYear()}`);
+    it('should create a new game', async () => {
+      const { accessToken } = await service.create();
+      expect(accessToken).toMatch(new Date().getFullYear().toString());
     });
   });
 
   describe('join', () => {
-    it('should throw an error for game not found', () => {
-      expect(() => service.join(999, '')).toThrow('GameNotFound');
+    it('should throw an error for game not found', async () => {
+      await expect(() => service.join('')).rejects.toThrow('GameNotFound');
     });
 
-    it('should throw an error for invalid token', () => {
-      const { gameId } = service.create();
-      expect(() => service.join(gameId, '')).toThrow('InvalidToken');
-    });
-
-    it('should join a game', () => {
-      const { gameId, accessToken } = service.create();
-      const playerId = service.join(gameId, accessToken);
+    it('should join a game', async () => {
+      const { accessToken } = await service.create();
+      const playerId = await service.join(accessToken);
       expect(playerId).toEqual(2);
     });
 
-    it('should throw an error when the game is full', () => {
-      const { gameId, accessToken } = service.create();
-      service.join(gameId, accessToken);
-      expect(() => service.join(gameId, accessToken)).toThrow(
+    it('should throw an error when the game is full', async () => {
+      const { accessToken } = await service.create();
+      await service.join(accessToken);
+      await expect(() => service.join(accessToken)).rejects.toThrow(
         'MaxNumberOfPlayersReached',
       );
     });
   });
 
   describe('movePiece', () => {
-    it('should throw an error for game not found', () => {
-      const { gameId, accessToken } = service.create();
-      service.join(gameId, accessToken);
+    it('should throw an error for game not found', async () => {
+      const { accessToken } = await service.create();
+      await service.join(accessToken);
       const params = {
         accessToken: '',
         currentPiecePosition: [5, 0],
         newPiecePosition: [4, 1],
       };
-      expect(() => service.movePiece(params)).toThrow('GameNotFound');
+      await expect(() => service.movePiece(params)).rejects.toThrow(
+        'GameNotFound',
+      );
     });
 
-    it('should throw an error for when a piece belongs to the other player', () => {
-      const { gameId, accessToken } = service.create();
-      service.join(gameId, accessToken);
+    it('should throw an error for when a piece belongs to the other player', async () => {
+      const { accessToken } = await service.create();
+      await service.join(accessToken);
       const params = {
         accessToken,
         currentPiecePosition: [5, 0],
         newPiecePosition: [4, 1],
       };
-      expect(() => service.movePiece(params)).toThrow('NotPlayerTurn');
+      await expect(() => service.movePiece(params)).rejects.toThrow(
+        'NotPlayerTurn',
+      );
     });
 
-    it('should throw an error for invalid movement', () => {
-      const { gameId, accessToken } = service.create();
-      service.join(gameId, accessToken);
+    it('should throw an error for invalid movement', async () => {
+      const { accessToken } = await service.create();
+      await service.join(accessToken);
       const params = {
         accessToken,
         currentPiecePosition: [2, 1],
         newPiecePosition: [3, 1],
       };
-      expect(() => service.movePiece(params)).toThrow('InvalidMovement');
+      await expect(() => service.movePiece(params)).rejects.toThrow(
+        'InvalidMovement',
+      );
     });
 
-    it('should throw an error for occupied tile', () => {
-      const { gameId, accessToken } = service.create();
-      service.join(gameId, accessToken);
+    it('should throw an error for occupied tile', async () => {
+      const { accessToken } = await service.create();
+      await service.join(accessToken);
       const params = {
         accessToken,
         currentPiecePosition: [5, 0],
         newPiecePosition: [5, 2],
       };
-      expect(() => service.movePiece(params)).toThrow('OccupiedTile');
+      await expect(() => service.movePiece(params)).rejects.toThrow(
+        'OccupiedTile',
+      );
     });
 
-    it('should throw an error if a jump is available', () => {
-      const { gameId, accessToken } = service.create();
-      service.join(gameId, accessToken);
-      service.movePiece({
+    it('should throw an error if a jump is available', async () => {
+      const { accessToken } = await service.create();
+      await service.join(accessToken);
+      await service.movePiece({
         accessToken,
         currentPiecePosition: [2, 1],
         newPiecePosition: [3, 2],
       });
-      service.movePiece({
+      await service.movePiece({
         accessToken,
         currentPiecePosition: [5, 0],
         newPiecePosition: [4, 1],
@@ -157,18 +159,20 @@ describe('GameService', () => {
         currentPiecePosition: [3, 2],
         newPiecePosition: [4, 3],
       };
-      expect(() => service.movePiece(params)).toThrow('UserMustJump');
+      await expect(() => service.movePiece(params)).rejects.toThrow(
+        'UserMustJump',
+      );
     });
 
-    it('should perform a simple play', () => {
-      const { gameId, accessToken } = service.create();
-      service.join(gameId, accessToken);
+    it('should perform a simple play', async () => {
+      const { accessToken } = await service.create();
+      await service.join(accessToken);
       const params = {
         accessToken,
         currentPiecePosition: [2, 1],
         newPiecePosition: [3, 2],
       };
-      const boardState = service.movePiece(params);
+      const boardState = await service.movePiece(params);
       expect(boardState).toEqual([
         [0, 1, 0, 1, 0, 1, 0, 1],
         [1, 0, 1, 0, 1, 0, 1, 0],
@@ -181,20 +185,20 @@ describe('GameService', () => {
       ]);
     });
 
-    it('should perform a jump', () => {
-      const { gameId, accessToken } = service.create();
-      service.join(gameId, accessToken);
-      service.movePiece({
+    it('should perform a jump', async () => {
+      const { accessToken } = await service.create();
+      await service.join(accessToken);
+      await service.movePiece({
         accessToken,
         currentPiecePosition: [2, 1],
         newPiecePosition: [3, 2],
       });
-      service.movePiece({
+      await service.movePiece({
         accessToken,
         currentPiecePosition: [5, 0],
         newPiecePosition: [4, 1],
       });
-      const boardState = service.movePiece({
+      const boardState = await service.movePiece({
         accessToken,
         currentPiecePosition: [3, 2],
         newPiecePosition: [5, 0],
@@ -211,9 +215,9 @@ describe('GameService', () => {
       ]);
     });
 
-    it('should crown a king', () => {
-      const { gameId, accessToken } = service.create();
-      service.join(gameId, accessToken);
+    it('should crown a king', async () => {
+      const { accessToken } = await service.create();
+      await service.join(accessToken);
       const moves = [
         { a: [2, 1], b: [3, 2] },
         { a: [5, 0], b: [4, 1] },
@@ -225,66 +229,70 @@ describe('GameService', () => {
         { a: [7, 2], b: [6, 1] },
         { a: [5, 0], b: [7, 2] },
       ];
-      moves.forEach((move) => {
-        service.movePiece({
-          accessToken,
-          currentPiecePosition: move.a,
-          newPiecePosition: move.b,
-        });
-      });
-      const piece = service.getPieceStatus(accessToken, 7, 2);
+      await Promise.all(
+        moves.map((move) => {
+          return service.movePiece({
+            accessToken,
+            currentPiecePosition: move.a,
+            newPiecePosition: move.b,
+          });
+        }),
+      );
+      const piece = await service.getPieceStatus(accessToken, 7, 2);
 
       expect(piece.constructor.name).toEqual('King');
     });
 
-    it('should win a game', () => {
-      const { gameId, accessToken } = service.create();
-      service.join(gameId, accessToken);
-      player1WinGame.forEach((move) => {
-        service.movePiece({
-          accessToken,
-          currentPiecePosition: move.a,
-          newPiecePosition: move.b,
-        });
-      });
+    it('should win a game', async () => {
+      const { accessToken } = await service.create();
+      await service.join(accessToken);
+      await Promise.all(
+        player1WinGame.map((move) => {
+          return service.movePiece({
+            accessToken,
+            currentPiecePosition: move.a,
+            newPiecePosition: move.b,
+          });
+        }),
+      );
 
-      const gameStatus = service.getGameStatus(accessToken);
+      const gameStatus = await service.getGameStatus(accessToken);
 
       expect(gameStatus).toEqual('player_1 won');
     });
   });
 
   describe('getBoardState', () => {
-    it('should return the board state', () => {
-      const { gameId, accessToken } = service.create();
-      service.join(gameId, accessToken);
-      const board = service.getBoardState(accessToken);
+    it('should return the board state', async () => {
+      const { accessToken } = await service.create();
+      await service.join(accessToken);
+      const board = await service.getBoardState(accessToken);
       expect(board).toEqual(INITIAL_BOARD);
     });
   });
 
   describe('getPieceStatus', () => {
-    it('should return the piece status', () => {
-      const { gameId, accessToken } = service.create();
-      service.join(gameId, accessToken);
-      const piece = service.getPieceStatus(accessToken, 0, 1);
+    it('should return the piece status', async () => {
+      const { accessToken } = await service.create();
+      await service.join(accessToken);
+      const piece = await service.getPieceStatus(accessToken, 0, 1);
       expect(piece).not.toBeNull();
     });
 
-    it('should throw an error for piece not found', () => {
-      const { gameId, accessToken } = service.create();
-      service.join(gameId, accessToken);
-      expect(() => service.getPieceStatus(accessToken, 0, 0)).toThrow(
-        'PieceNotFound',
-      );
+    it('should throw an error for piece not found', async () => {
+      const { accessToken } = await service.create();
+      await service.join(accessToken);
+      await expect(() =>
+        service.getPieceStatus(accessToken, 0, 0),
+      ).rejects.toThrow('PieceNotFound');
     });
   });
 
   describe('getGameStatus', () => {
-    it('should return the game status', () => {
-      const { gameId, accessToken } = service.create();
-      service.join(gameId, accessToken);
-      const gameStatus = service.getGameStatus(accessToken);
+    it('should return the game status', async () => {
+      const { accessToken } = await service.create();
+      await service.join(accessToken);
+      const gameStatus = await service.getGameStatus(accessToken);
       expect(gameStatus).toEqual('player_1 turn');
     });
   });

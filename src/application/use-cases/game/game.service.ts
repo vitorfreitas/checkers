@@ -1,29 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { GameRepository } from '../../../domain/repositories/game-repository';
-import { Player } from '../../../domain/entities/player';
 import { CreateGameOutputData } from './dto/create-game-output-data';
 import { Game } from '../../../domain/entities/game';
 import { Piece } from '../../../domain/entities/piece';
+import { Players } from '../../../domain/shared/constants/game';
 
 @Injectable()
 export class GameService {
   constructor(private gameRepository: GameRepository) {}
 
-  findOneByToken(token: string): Game {
-    const game = this.gameRepository.findOneByAccessToken(token);
+  async findOneByToken(token: string): Promise<Game> {
+    const game = await this.gameRepository.findOneByAccessToken(token);
     if (!game) {
       throw new Error('GameNotFound');
     }
     return game;
   }
 
-  create(): CreateGameOutputData {
-    const game = this.gameRepository.create(new Player(1));
+  async create(): Promise<CreateGameOutputData> {
+    const player1 = await this.gameRepository.createPlayer(Players.ONE);
+    const game = await this.gameRepository.create(player1);
     return new CreateGameOutputData(game);
   }
 
-  join(gameId: number, accessToken: string): number {
-    const game = this.gameRepository.findOneById(gameId);
+  async join(accessToken: string): Promise<number> {
+    const game = await this.gameRepository.findOneByAccessToken(accessToken);
     if (!game) {
       throw new Error('GameNotFound');
     }
@@ -31,28 +32,42 @@ export class GameService {
     if (!isTokenValid) {
       throw new Error('InvalidToken');
     }
-    const player = new Player(2);
-    game.addPlayer(player);
-    return player.playerOrder;
+    const player2 = await this.gameRepository.createPlayer(
+      Players.TWO,
+      accessToken,
+    );
+    const [player1] = game.players;
+    const board = await this.gameRepository.createBoard(
+      accessToken,
+      player1,
+      player2,
+    );
+    game.addPlayer(player2, board);
+    return player2.playerOrder;
   }
 
-  movePiece(params: {
+  async movePiece(params: {
     accessToken: string;
     currentPiecePosition: number[];
     newPiecePosition: number[];
   }) {
-    const game = this.findOneByToken(params.accessToken);
+    const game = await this.findOneByToken(params.accessToken);
     game.makePlay(params.currentPiecePosition, params.newPiecePosition);
+    await this.gameRepository.update(game);
     return this.getBoardState(params.accessToken);
   }
 
-  getBoardState(accessToken: string) {
-    const game = this.findOneByToken(accessToken);
+  async getBoardState(accessToken: string) {
+    const game = await this.findOneByToken(accessToken);
     return game.getBoard().getState();
   }
 
-  getPieceStatus(accessToken: string, row: number, column: number): Piece {
-    const game = this.findOneByToken(accessToken);
+  async getPieceStatus(
+    accessToken: string,
+    row: number,
+    column: number,
+  ): Promise<Piece> {
+    const game = await this.findOneByToken(accessToken);
     const piece = game.getBoard().getPiece(row, column);
     if (!piece) {
       throw new Error('PieceNotFound');
@@ -60,8 +75,8 @@ export class GameService {
     return piece;
   }
 
-  getGameStatus(accessToken: string) {
-    const game = this.findOneByToken(accessToken);
+  async getGameStatus(accessToken: string) {
+    const game = await this.findOneByToken(accessToken);
     return game.getStatus();
   }
 }
