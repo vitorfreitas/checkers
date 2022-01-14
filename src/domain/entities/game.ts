@@ -2,9 +2,10 @@ import { Board } from './board';
 import { Player } from './player';
 import * as randomString from 'randomstring';
 import {
+  GameNotStartedException,
   MaxNumberOfPlayersException,
-  UserMustJumpException,
-} from '../exceptions';
+  UserMustJumpException
+} from "../exceptions";
 
 const MAX_PLAYERS = 2;
 const FIRST_PLAYER = 1;
@@ -72,6 +73,9 @@ export class Game {
   }
 
   getStatus(): string {
+    if (!this.board) {
+      throw new GameNotStartedException();
+    }
     const winner = this.board.getWinner();
     if (winner) {
       return `player_${winner.playerOrder} won`;

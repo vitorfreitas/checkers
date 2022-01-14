@@ -53,3 +53,9 @@ export class PieceNotFoundException extends Error {
     super(message || 'The requested piece was not found');
   }
 }
+
+export class GameNotStartedException extends Error {
+  constructor(message?: string) {
+    super(message || 'The game does not have 2 players yet');
+  }
+}

@@ -2,13 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { GameRepository } from '../../../domain/repositories/game-repository';
 import { CreateGameOutputData } from './dto/create-game-output-data';
 import { Game } from '../../../domain/entities/game';
-import { Piece } from '../../../domain/entities/piece';
 import { Players } from '../../../domain/shared/constants/game';
 import {
-  GameNotFoundException,
+  GameNotFoundException, GameNotStartedException,
   InvalidTokenException,
-  PieceNotFoundException,
-} from '../../../domain/exceptions';
+  PieceNotFoundException
+} from "../../../domain/exceptions";
 import { GetPieceOutputData } from './dto/get-piece-output-data';
 
 @Injectable()
@@ -62,6 +61,10 @@ export class GameService {
 
   async getBoardState(accessToken: string) {
     const game = await this.findOneByToken(accessToken);
+    const board = game.getBoard();
+    if (!board) {
+      throw new GameNotStartedException();
+    }
     return game.getBoard().getState();
   }
 
@@ -71,7 +74,11 @@ export class GameService {
     column: number,
   ): Promise<GetPieceOutputData> {
     const game = await this.findOneByToken(accessToken);
-    const result = game.getBoard().getPiece(row, column);
+    const board = game.getBoard();
+    if (!board) {
+      throw new GameNotStartedException();
+    }
+    const result = board.getPiece(row, column);
     if (!result) {
       throw new PieceNotFoundException();
     }

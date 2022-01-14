@@ -36,6 +36,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       .set('GameNotFoundException', HttpStatus.NOT_FOUND)
       .set('InvalidTokenException', HttpStatus.UNAUTHORIZED)
       .set('PieceNotFoundException', HttpStatus.NOT_FOUND)
+      .set('GameNotStartedException', HttpStatus.BAD_REQUEST)
       .get(exception.constructor.name);
 
     return status || HttpStatus.INTERNAL_SERVER_ERROR;
