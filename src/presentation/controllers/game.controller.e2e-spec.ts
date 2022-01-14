@@ -23,7 +23,7 @@ describe('GameController (e2e)', () => {
     await app.init();
   });
 
-  describe('/games (POST)', () => {
+  describe('POST /games', () => {
     it('should create a new game', () => {
       return request(app.getHttpServer())
         .post('/games')
@@ -36,7 +36,7 @@ describe('GameController (e2e)', () => {
     });
   });
 
-  describe('/games/:accessToken/join', () => {
+  describe('POST /games/:accessToken/join', () => {
     it('should join a game', async () => {
       const req = request(app.getHttpServer());
       const response = await req.post('/games');
@@ -56,7 +56,7 @@ describe('GameController (e2e)', () => {
     });
   });
 
-  describe('/games/:accessToken/move', () => {
+  describe('POST /games/:accessToken/move', () => {
     let req: request.SuperTest<any>;
     let accessToken: string;
 

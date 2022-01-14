@@ -75,7 +75,7 @@ export class GameService {
     if (!result) {
       throw new PieceNotFoundException();
     }
-    const { piece, movements } = result
+    const { piece, movements } = result;
     return new GetPieceOutputData(piece, movements);
   }
 

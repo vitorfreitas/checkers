@@ -16,46 +16,6 @@ import {
   PieceNotFoundException,
 } from '../../../domain/exceptions';
 
-const player1WinGame = [
-  { a: [2, 1], b: [3, 2] },
-  { a: [5, 0], b: [4, 1] },
-  { a: [3, 2], b: [5, 0] },
-  { a: [5, 2], b: [4, 3] },
-  { a: [2, 5], b: [3, 6] },
-  { a: [6, 1], b: [5, 2] },
-  { a: [1, 0], b: [2, 1] },
-  { a: [7, 2], b: [6, 1] },
-  { a: [5, 0], b: [7, 2] },
-  { a: [5, 4], b: [4, 5] },
-  { a: [3, 6], b: [5, 4] },
-  { a: [6, 3], b: [4, 5] },
-  { a: [1, 4], b: [2, 5] },
-  { a: [4, 3], b: [3, 4] },
-  { a: [2, 5], b: [4, 3] },
-  { a: [4, 3], b: [6, 1] },
-  { a: [7, 0], b: [5, 2] },
-  { a: [1, 6], b: [2, 5] },
-  { a: [6, 5], b: [5, 4] },
-  { a: [0, 7], b: [1, 6] },
-  { a: [4, 5], b: [3, 4] },
-  { a: [2, 5], b: [4, 3] },
-  { a: [4, 3], b: [6, 1] },
-  { a: [5, 6], b: [4, 5] },
-  { a: [2, 1], b: [3, 2] },
-  { a: [4, 5], b: [3, 6] },
-  { a: [2, 7], b: [4, 5] },
-  { a: [4, 5], b: [6, 3] },
-  { a: [7, 4], b: [5, 2] },
-  { a: [6, 1], b: [7, 0] },
-  { a: [7, 6], b: [6, 5] },
-  { a: [7, 0], b: [6, 1] },
-  { a: [6, 5], b: [5, 4] },
-  { a: [6, 1], b: [4, 3] },
-  { a: [4, 3], b: [6, 5] },
-  { a: [6, 7], b: [5, 6] },
-  { a: [6, 5], b: [4, 7] },
-];
-
 describe('GameService', () => {
   let service: GameService;
 
@@ -186,14 +146,14 @@ describe('GameService', () => {
       };
       const boardState = await service.movePiece(params);
       expect(boardState).toEqual([
-        [0, 1, 0, 1, 0, 1, 0, 1],
-        [1, 0, 1, 0, 1, 0, 1, 0],
-        [0, 0, 0, 1, 0, 1, 0, 1],
-        [0, 0, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [2, 0, 2, 0, 2, 0, 2, 0],
-        [0, 2, 0, 2, 0, 2, 0, 2],
-        [2, 0, 2, 0, 2, 0, 2, 0],
+        '0 1 0 1 0 1 0 1',
+        '1 0 1 0 1 0 1 0',
+        '0 0 0 1 0 1 0 1',
+        '0 0 1 0 0 0 0 0',
+        '0 0 0 0 0 0 0 0',
+        '2 0 2 0 2 0 2 0',
+        '0 2 0 2 0 2 0 2',
+        '2 0 2 0 2 0 2 0',
       ]);
     });
 
@@ -216,14 +176,14 @@ describe('GameService', () => {
         newPiecePosition: [5, 0],
       });
       expect(boardState).toEqual([
-        [0, 1, 0, 1, 0, 1, 0, 1],
-        [1, 0, 1, 0, 1, 0, 1, 0],
-        [0, 0, 0, 1, 0, 1, 0, 1],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [1, 0, 2, 0, 2, 0, 2, 0],
-        [0, 2, 0, 2, 0, 2, 0, 2],
-        [2, 0, 2, 0, 2, 0, 2, 0],
+        '0 1 0 1 0 1 0 1',
+        '1 0 1 0 1 0 1 0',
+        '0 0 0 1 0 1 0 1',
+        '0 0 0 0 0 0 0 0',
+        '0 0 0 0 0 0 0 0',
+        '1 0 2 0 2 0 2 0',
+        '0 2 0 2 0 2 0 2',
+        '2 0 2 0 2 0 2 0',
       ]);
     });
 
@@ -252,7 +212,7 @@ describe('GameService', () => {
       );
       const piece = await service.getPieceStatus(accessToken, 7, 2);
 
-      expect(piece.isKing).toBeTruthy;
+      expect(piece.isKing).toBeTruthy();
     });
 
     it('should win a game', async () => {
@@ -279,7 +239,8 @@ describe('GameService', () => {
       const { accessToken } = await service.create();
       await service.join(accessToken);
       const board = await service.getBoardState(accessToken);
-      expect(board).toEqual(INITIAL_BOARD);
+      const expectedBoard = INITIAL_BOARD.map((row) => row.join(' '));
+      expect(board).toEqual(expectedBoard);
     });
   });
 

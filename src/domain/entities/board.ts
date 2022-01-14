@@ -50,7 +50,9 @@ export class Board {
 
   getState() {
     return this.grid.map((rows) => {
-      return rows.map((tile) => tile.getPiece()?.player.playerOrder ?? 0);
+      return rows
+        .map((tile) => tile.getPiece()?.player.playerOrder ?? 0)
+        .join(' ');
     });
   }
 
