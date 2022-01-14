@@ -3,6 +3,7 @@ import { GameService } from './game.service';
 import { GameRepository } from '../../../domain/repositories/game-repository';
 import { GameRepositoryMemory } from '../../../infrastructure/storage/memory/repositories/game-repository-memory';
 import { INITIAL_BOARD } from '../../../domain/shared/constants/board';
+import { PLAYER_1_WIN_GAME } from '../../../../test/constants/game';
 
 const player1WinGame = [
   { a: [2, 1], b: [3, 2] },
@@ -247,7 +248,7 @@ describe('GameService', () => {
       const { accessToken } = await service.create();
       await service.join(accessToken);
       await Promise.all(
-        player1WinGame.map((move) => {
+        PLAYER_1_WIN_GAME.map((move) => {
           return service.movePiece({
             accessToken,
             currentPiecePosition: move.a,

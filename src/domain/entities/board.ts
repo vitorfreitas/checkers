@@ -150,6 +150,9 @@ export class Board {
       throw new Error('InvalidMovement');
     }
     newTile.setPiece(oldTile.getPiece());
+    if (newTile.isEdgeTile()) {
+      newTile.makeKing();
+    }
     oldTile.empty();
   }
 
@@ -165,6 +168,9 @@ export class Board {
     }
     const removedTile = this.grid[row][column];
     newTile.setPiece(oldTile.getPiece());
+    if (newTile.isEdgeTile()) {
+      newTile.makeKing();
+    }
     oldTile.empty();
     removedTile.empty();
   }

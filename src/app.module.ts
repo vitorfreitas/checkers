@@ -17,6 +17,7 @@ import { Player } from './infrastructure/storage/database/models/player';
       database: 'postgres',
       entities: [Game, Board, Piece, Player],
       synchronize: false,
+      keepConnectionAlive: true,
     }),
     GameModule,
   ],

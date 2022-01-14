@@ -21,10 +21,10 @@ export class Tile {
   setPiece(piece: Piece) {
     this.piece = piece;
     this.piece.setCoords(this.row, this.column);
+  }
 
-    if (this.isEdgeTile()) {
-      this.piece = new King(this.row, this.column, this.piece.player);
-    }
+  makeKing() {
+    this.piece = new King(this.row, this.column, this.piece.player);
   }
 
   getPiece() {
