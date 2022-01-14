@@ -106,8 +106,30 @@ export class Board {
     });
   }
 
-  getPiece(row: number, column: number): Piece | null {
-    return this.grid[row][column].getPiece();
+  getPiece(row: number, column: number): { piece: Piece, movements: number[][] } | null {
+    const piece = this.grid[row][column].getPiece();
+    if (!piece) return null
+    const movements = piece.getPossibleMovements()
+      .reduce((movements, { base, jump }) => {
+        const [baseRow, baseColumn] = base
+        const [jumpRow, jumpColumn] = jump
+        const isBaseMovementValid = this.isMovementValid(baseRow, baseColumn)
+        const isJumpMovementValid = this.isJumpMovement(
+          piece.player.playerOrder,
+          [row, column],
+          jump,
+        )
+        const validMovements = []
+        if (isBaseMovementValid) validMovements.push(base)
+        if (isJumpMovementValid) validMovements.push(jump)
+
+        return [...movements, ...validMovements]
+      }, [])
+
+    return {
+      piece,
+      movements,
+    }
   }
 
   getWinner(): Player | null {

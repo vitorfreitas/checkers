@@ -4,6 +4,17 @@ import { GameRepository } from '../../../domain/repositories/game-repository';
 import { GameRepositoryMemory } from '../../../infrastructure/storage/memory/repositories/game-repository-memory';
 import { INITIAL_BOARD } from '../../../domain/shared/constants/board';
 import { PLAYER_1_WIN_GAME } from '../../../../test/constants/game';
+import {
+  EmptyTileException,
+  UserMustJumpException,
+  OccupiedTileException,
+  NotPlayerTurnException,
+  InvalidMovementException,
+  MaxNumberOfPlayersException,
+  GameNotFoundException,
+  InvalidTokenException,
+  PieceNotFoundException,
+} from '../../../domain/exceptions';
 
 const player1WinGame = [
   { a: [2, 1], b: [3, 2] },
@@ -71,7 +82,7 @@ describe('GameService', () => {
 
   describe('join', () => {
     it('should throw an error for game not found', async () => {
-      await expect(() => service.join('')).rejects.toThrow('GameNotFound');
+      await expect(() => service.join('')).rejects.toThrow(GameNotFoundException);
     });
 
     it('should join a game', async () => {
@@ -84,7 +95,7 @@ describe('GameService', () => {
       const { accessToken } = await service.create();
       await service.join(accessToken);
       await expect(() => service.join(accessToken)).rejects.toThrow(
-        'MaxNumberOfPlayersReached',
+        MaxNumberOfPlayersException
       );
     });
   });
@@ -99,7 +110,7 @@ describe('GameService', () => {
         newPiecePosition: [4, 1],
       };
       await expect(() => service.movePiece(params)).rejects.toThrow(
-        'GameNotFound',
+        GameNotFoundException
       );
     });
 
@@ -112,7 +123,7 @@ describe('GameService', () => {
         newPiecePosition: [4, 1],
       };
       await expect(() => service.movePiece(params)).rejects.toThrow(
-        'NotPlayerTurn',
+        NotPlayerTurnException
       );
     });
 
@@ -125,7 +136,7 @@ describe('GameService', () => {
         newPiecePosition: [3, 1],
       };
       await expect(() => service.movePiece(params)).rejects.toThrow(
-        'InvalidMovement',
+        InvalidMovementException,
       );
     });
 
@@ -138,7 +149,7 @@ describe('GameService', () => {
         newPiecePosition: [5, 2],
       };
       await expect(() => service.movePiece(params)).rejects.toThrow(
-        'OccupiedTile',
+        OccupiedTileException,
       );
     });
 
@@ -161,7 +172,7 @@ describe('GameService', () => {
         newPiecePosition: [4, 3],
       };
       await expect(() => service.movePiece(params)).rejects.toThrow(
-        'UserMustJump',
+        UserMustJumpException,
       );
     });
 
@@ -241,7 +252,7 @@ describe('GameService', () => {
       );
       const piece = await service.getPieceStatus(accessToken, 7, 2);
 
-      expect(piece.constructor.name).toEqual('King');
+      expect(piece.isKing).toBeTruthy;
     });
 
     it('should win a game', async () => {
@@ -285,7 +296,7 @@ describe('GameService', () => {
       await service.join(accessToken);
       await expect(() =>
         service.getPieceStatus(accessToken, 0, 0),
-      ).rejects.toThrow('PieceNotFound');
+      ).rejects.toThrow(PieceNotFoundException);
     });
   });
 

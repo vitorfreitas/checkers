@@ -9,6 +9,7 @@ import {
   InvalidTokenException,
   PieceNotFoundException,
 } from '../../../domain/exceptions';
+import { GetPieceOutputData } from './dto/get-piece-output-data';
 
 @Injectable()
 export class GameService {
@@ -68,13 +69,14 @@ export class GameService {
     accessToken: string,
     row: number,
     column: number,
-  ): Promise<Piece> {
+  ): Promise<GetPieceOutputData> {
     const game = await this.findOneByToken(accessToken);
-    const piece = game.getBoard().getPiece(row, column);
-    if (!piece) {
+    const result = game.getBoard().getPiece(row, column);
+    if (!result) {
       throw new PieceNotFoundException();
     }
-    return piece;
+    const { piece, movements } = result
+    return new GetPieceOutputData(piece, movements);
   }
 
   async getGameStatus(accessToken: string) {

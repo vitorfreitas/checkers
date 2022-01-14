@@ -6,8 +6,8 @@ export type Movement = {
 };
 
 export class Piece {
-  protected row: number;
-  protected column: number;
+  public row: number;
+  public column: number;
   public readonly player: Player;
 
   constructor(row: number, column: number, player: Player) {
