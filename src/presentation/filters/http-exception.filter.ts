@@ -1,4 +1,11 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpAdapterHost, HttpStatus } from '@nestjs/common';
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  HttpAdapterHost,
+  HttpStatus,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 
 @Catch()
@@ -8,7 +15,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
-    const httpStatus = this.getHttpStatus(exception)
+    const httpStatus = this.getHttpStatus(exception);
     const responseBody = {
       statusCode: httpStatus,
       type: exception.constructor.name,
@@ -29,8 +36,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
       .set('GameNotFoundException', HttpStatus.NOT_FOUND)
       .set('InvalidTokenException', HttpStatus.UNAUTHORIZED)
       .set('PieceNotFoundException', HttpStatus.NOT_FOUND)
-      .get(exception.constructor.name)
+      .get(exception.constructor.name);
 
-    return status || HttpStatus.INTERNAL_SERVER_ERROR
+    return status || HttpStatus.INTERNAL_SERVER_ERROR;
   }
 }

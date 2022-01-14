@@ -3,6 +3,8 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../app.module';
 import { PLAYER_1_WIN_GAME } from '../../../test/constants/game';
+import { HttpExceptionFilter } from '../filters/http-exception.filter';
+import { HttpAdapterHost } from '@nestjs/core';
 
 jest.setTimeout(100000);
 
@@ -15,6 +17,9 @@ describe('GameController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    const httpAdapter = app.get(HttpAdapterHost);
+    app.useGlobalFilters(new HttpExceptionFilter(httpAdapter));
+
     await app.init();
   });
 
@@ -31,11 +36,31 @@ describe('GameController (e2e)', () => {
     });
   });
 
+  describe('/games/:accessToken/join', () => {
+    it('should join a game', async () => {
+      const req = request(app.getHttpServer());
+      const response = await req.post('/games');
+      const accessToken = response.body.accessToken;
+
+      return req.post(`/games/${accessToken}/join`).expect(201);
+    });
+
+    it('should throw an error for game not found', async () => {
+      const req = request(app.getHttpServer());
+      return req
+        .post('/games/not-found/join')
+        .expect(404)
+        .then((response) => {
+          expect(response.body.message).toEqual('The game was not found');
+        });
+    });
+  });
+
   describe('/games/:accessToken/move', () => {
     let req: request.SuperTest<any>;
     let accessToken: string;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
       req = request(app.getHttpServer());
       const response = await req.post('/games');
       accessToken = response.body.accessToken;
@@ -58,16 +83,35 @@ describe('GameController (e2e)', () => {
         .expect(200)
         .expect('player_1 won');
     });
+
+    it('should throw an error for invalid movement', async () => {
+      return req
+        .post(`/games/${accessToken}/move`)
+        .send({
+          oldPosition: [2, 1],
+          newPosition: [3, 1],
+        })
+        .expect(422)
+        .then((response) => {
+          expect(response.body.message).toEqual(
+            'The requested movement does not comply with the game rules',
+          );
+        });
+    });
+
+    it('should throw an error for piece not found', async () => {
+      return req
+        .post(`/games/${accessToken}/move`)
+        .send({
+          oldPosition: [0, 0],
+          newPosition: [3, 1],
+        })
+        .expect(422)
+        .then((response) => {
+          expect(response.body.message).toEqual(
+            'The desired tile does not have any piece',
+          );
+        });
+    });
   });
 });
-
-const a = [
-  [0, 1, 0, 1, 0, 1, 0, 0],
-  [0, 0, 1, 0, 0, 0, 1, 0],
-  [0, 0, 0, 1, 0, 0, 0, 0],
-  [0, 0, 1, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 2, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 2, 0, 2],
-  [1, 0, 1, 0, 0, 0, 0, 0],
-];

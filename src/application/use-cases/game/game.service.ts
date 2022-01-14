@@ -7,7 +7,7 @@ import { Players } from '../../../domain/shared/constants/game';
 import {
   GameNotFoundException,
   InvalidTokenException,
-  PieceNotFoundException
+  PieceNotFoundException,
 } from '../../../domain/exceptions';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class GameService {
   async findOneByToken(token: string): Promise<Game> {
     const game = await this.gameRepository.findOneByAccessToken(token);
     if (!game) {
-      throw new GameNotFoundException()
+      throw new GameNotFoundException();
     }
     return game;
   }
@@ -32,7 +32,7 @@ export class GameService {
     const game = await this.findOneByToken(accessToken);
     const isTokenValid = game.isTokenValid(accessToken);
     if (!isTokenValid) {
-      throw new InvalidTokenException()
+      throw new InvalidTokenException();
     }
     const player2 = await this.gameRepository.createPlayer(
       Players.TWO,
@@ -72,7 +72,7 @@ export class GameService {
     const game = await this.findOneByToken(accessToken);
     const piece = game.getBoard().getPiece(row, column);
     if (!piece) {
-      throw new PieceNotFoundException()
+      throw new PieceNotFoundException();
     }
     return piece;
   }

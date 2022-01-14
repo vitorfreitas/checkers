@@ -2,10 +2,12 @@ import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
-  Entity, JoinColumn, OneToMany,
-  PrimaryGeneratedColumn
-} from "typeorm";
-import { Player } from "./player";
+  Entity,
+  JoinColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Player } from './player';
 
 @Entity()
 export class Game {
@@ -24,7 +26,7 @@ export class Game {
   @Column()
   playerTurn: number;
 
-  @OneToMany(type => Player, player => player.game)
+  @OneToMany((type) => Player, (player) => player.game)
   @JoinColumn()
   players: Player[];
 }

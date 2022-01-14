@@ -1,8 +1,8 @@
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as helmet from 'helmet'
-import {HttpExceptionFilter} from './presentation/filters/http-exception.filter';
+import * as helmet from 'helmet';
+import { HttpExceptionFilter } from './presentation/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,11 +16,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  app.use(helmet())
+  app.use(helmet());
 
-  const httpAdapter = app.get(HttpAdapterHost)
-  app.useGlobalFilters(new HttpExceptionFilter(httpAdapter))
+  const httpAdapter = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new HttpExceptionFilter(httpAdapter));
 
   await app.listen(3000);
 }

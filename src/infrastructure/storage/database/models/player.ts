@@ -22,7 +22,7 @@ export class Player {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @ManyToOne((type) => Game, game => game.players)
+  @ManyToOne((type) => Game, (game) => game.players)
   @JoinColumn()
   game: Game;
 
