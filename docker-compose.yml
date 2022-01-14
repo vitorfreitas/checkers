@@ -1,0 +1,29 @@
+version: '3'
+services:
+  db:
+    image: 'postgres:latest'
+    container_name: db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
+    networks:
+      - api-network
+  app:
+    container_name: app
+    build:
+      context: .
+    env_file:
+      - .env.docker
+    volumes:
+      - '.:/app'
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+    networks:
+      - api-network
+networks:
+  api-network:
+    driver: bridge
