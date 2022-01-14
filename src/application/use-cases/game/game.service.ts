@@ -4,6 +4,11 @@ import { CreateGameOutputData } from './dto/create-game-output-data';
 import { Game } from '../../../domain/entities/game';
 import { Piece } from '../../../domain/entities/piece';
 import { Players } from '../../../domain/shared/constants/game';
+import {
+  GameNotFoundException,
+  InvalidTokenException,
+  PieceNotFoundException
+} from '../../../domain/exceptions';
 
 @Injectable()
 export class GameService {
@@ -12,7 +17,7 @@ export class GameService {
   async findOneByToken(token: string): Promise<Game> {
     const game = await this.gameRepository.findOneByAccessToken(token);
     if (!game) {
-      throw new Error('GameNotFound');
+      throw new GameNotFoundException()
     }
     return game;
   }
@@ -24,13 +29,10 @@ export class GameService {
   }
 
   async join(accessToken: string): Promise<number> {
-    const game = await this.gameRepository.findOneByAccessToken(accessToken);
-    if (!game) {
-      throw new Error('GameNotFound');
-    }
+    const game = await this.findOneByToken(accessToken);
     const isTokenValid = game.isTokenValid(accessToken);
     if (!isTokenValid) {
-      throw new Error('InvalidToken');
+      throw new InvalidTokenException()
     }
     const player2 = await this.gameRepository.createPlayer(
       Players.TWO,
@@ -70,7 +72,7 @@ export class GameService {
     const game = await this.findOneByToken(accessToken);
     const piece = game.getBoard().getPiece(row, column);
     if (!piece) {
-      throw new Error('PieceNotFound');
+      throw new PieceNotFoundException()
     }
     return piece;
   }

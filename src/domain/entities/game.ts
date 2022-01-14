@@ -1,6 +1,7 @@
 import { Board } from './board';
 import { Player } from './player';
 import * as randomString from 'randomstring';
+import {MaxNumberOfPlayersException, UserMustJumpException} from '../exceptions';
 
 const MAX_PLAYERS = 2;
 const FIRST_PLAYER = 1;
@@ -21,7 +22,7 @@ export class Game {
 
   addPlayer(player: Player, board: Board) {
     if (this.players.length === MAX_PLAYERS) {
-      throw new Error('MaxNumberOfPlayersReached');
+      throw new MaxNumberOfPlayersException()
     }
     this.board = board;
     this.players.push(player);
@@ -38,7 +39,7 @@ export class Game {
       newPiecePosition,
     );
     if (playerMustJump) {
-      throw new Error('UserMustJump');
+      throw new UserMustJumpException()
     }
     const isJumpMove = this.board.isJumpMovement(
       this.playerTurn,

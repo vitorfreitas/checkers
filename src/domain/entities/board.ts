@@ -10,6 +10,7 @@ import {
   MIN_ROW_LENGTH,
 } from '../shared/constants/board';
 import { Players } from '../shared/constants/game';
+import {EmptyTileException, InvalidMovementException, NotPlayerTurnException, OccupiedTileException} from '../exceptions';
 
 export class Board {
   grid: Tile[][];
@@ -26,13 +27,13 @@ export class Board {
     const oldTile = this.grid[oldRow][oldColumn];
     const newTile = this.grid[newRow][newColumn];
     if (!oldTile.isOccupied()) {
-      throw new Error('EmptyTile');
+      throw new EmptyTileException();
     }
     if (newTile.isOccupied()) {
-      throw new Error('OccupiedTile');
+      throw new OccupiedTileException()
     }
     if (!oldTile.isPlayerTurn(playerTurn)) {
-      throw new Error('NotPlayerTurn');
+      throw new NotPlayerTurnException()
     }
     const isJump = oldTile.movements
       .filter(({ jump: [row, column] }) => this.isMovementValid(row, column))
@@ -147,7 +148,7 @@ export class Board {
       .filter(({ base: [row, column] }) => this.isMovementValid(row, column))
       .find((movement) => newTile.equals(movement.base));
     if (!newMovementExists) {
-      throw new Error('InvalidMovement');
+      throw new InvalidMovementException()
     }
     newTile.setPiece(oldTile.getPiece());
     if (newTile.isEdgeTile()) {
@@ -164,7 +165,7 @@ export class Board {
         this.isMovementValid(row, column) && newTile.equals([row, column]),
     );
     if (!row && !column) {
-      throw new Error('InvalidMovement');
+      throw new InvalidMovementException()
     }
     const removedTile = this.grid[row][column];
     newTile.setPiece(oldTile.getPiece());
