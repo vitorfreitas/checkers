@@ -1,73 +1,55 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
+# Checkers
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+You can access the api [here](http://www.checkers.frema.digital/api)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Running
 
-## Description
+* You must have docker and docker-compose installed
+* `./run.sh`
+* Access `http://localhost:3000/api`
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Acceptance criteria
 
-## Installation
+> 1. Como usuário quero criar um jogo que permita duas pessoas jogarem (assim que é criado, eu sou o player 1; api retorna o game_id e o
+token de acesso para o player_2)
 
-```bash
-$ npm install
-```
+* Create a game via `POST /games`
 
-## Running the app
+__All the following steps must use the access code returned from this
+endpoint.__
 
-```bash
-# development
-$ npm run start
+> 2. Como usuário que possui um token de acesso válido, quero entrar num jogo como player_2
 
-# watch mode
-$ npm run start:dev
+* Join a game via `POST /games/:accessCode/join`
 
-# production mode
-$ npm run start:prod
-```
+> 3. Como jogador, quero consultar qual o estado atual das peças no tabuleiro
 
-## Test
+* Use `GET /games/:accessCode/board`
 
-```bash
-# unit tests
-$ npm run test
+This returns a grid with all the pieces in the table
 
-# e2e tests
-$ npm run test:e2e
+> 4. Como jogador (participante de um game), quero consultar quais são os movimentos permitidos de uma certa peça
 
-# test coverage
-$ npm run test:cov
-```
+* Use `GET /games/:accessCode/piece`, passing the position as an array of
+    numbers, where: the first item is the row, the second item is the column
 
-## Support
+> 6. Como jogador, quero mover peças no tabuleiro, respeitando as regras do jogo
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+* Use `POST /games/:accessCode/move`, passing and `oldPosition` array of
+    row/column, and a `newPosition` following the same pattern
 
-## Stay in touch
+> 5. Como jogador, quero consultar de quem é a vez
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+> 7. Como jogador, quero consultar o status do jogo ('waiting for opponent', 'player_1 turn', 'player_2 turn', 'player_1 won', 'player_2 won')
 
-## License
+* Use `GET /games/:accessCode/status`
+* This endpoint returns one of the following status:
+  * player_1 turn
+  * player_2 turn
+  * player_1 won
+  * player_2 won
 
-Nest is [MIT licensed](LICENSE).
+## Tests
+
+* `npm test` - Unit tests
+* `npm run test:e2e` - Integration tests

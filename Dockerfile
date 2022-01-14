@@ -12,7 +12,7 @@ RUN npm ci \
 
 # ---
 
-FROM node:14-alpine
+FROM node:14
 
 ENV NODE_ENV production
 
@@ -22,5 +22,6 @@ WORKDIR /home/node
 COPY --from=builder /home/node/package*.json /home/node/
 COPY --from=builder /home/node/node_modules/ /home/node/node_modules/
 COPY --from=builder /home/node/dist/ /home/node/dist/
+COPY --from=builder /home/node/ormconfig.json /home/node/ormconfig.json
 
 CMD ["node", "dist/src/main"]
