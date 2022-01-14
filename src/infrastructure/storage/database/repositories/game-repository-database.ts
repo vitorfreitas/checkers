@@ -73,7 +73,7 @@ export class GameRepositoryDatabase implements GameRepository {
     return gameEntity;
   }
 
-  async update(game: Game): Promise<Game> {
+  async reRenderGameState(game: Game): Promise<Game> {
     const board = await this.boardRepository.findOne({
       where: {
         game: {

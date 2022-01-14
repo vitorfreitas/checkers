@@ -5,7 +5,7 @@ import { Board } from '../entities/board';
 export abstract class GameRepository {
   abstract create(player: Player): Promise<Game>;
   abstract findOneByAccessToken(accessToken: string): Promise<Game | undefined>;
-  abstract update(game: Game): Promise<Game>;
+  abstract reRenderGameState(game: Game): Promise<Game>;
   abstract createPlayer(
     playerOrder: number,
     accessToken?: string,

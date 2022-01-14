@@ -56,7 +56,7 @@ export class GameService {
   }) {
     const game = await this.findOneByToken(params.accessToken);
     game.makePlay(params.currentPiecePosition, params.newPiecePosition);
-    await this.gameRepository.update(game);
+    await this.gameRepository.reRenderGameState(game);
     return this.getBoardState(params.accessToken);
   }
 
