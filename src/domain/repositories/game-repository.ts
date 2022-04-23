@@ -1,6 +1,6 @@
-import { Game } from '../entities/game';
-import { Player } from '../entities/player';
-import { Board } from '../entities/board';
+import { Board } from "src/infrastructure/storage/database/models/board";
+import { Game } from "src/infrastructure/storage/database/models/game";
+import { Player } from "src/infrastructure/storage/database/models/player";
 
 export abstract class GameRepository {
   abstract create(player: Player): Promise<Game>;

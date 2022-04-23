@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { GameRepository } from '../../../domain/repositories/game-repository';
 import { CreateGameOutputData } from './dto/create-game-output-data';
-import { Game } from '../../../domain/entities/game';
+import { Game } from 'src/infrastructure/storage/database/models/game';
 import { Players } from '../../../domain/shared/constants/game';
 import {
   GameNotFoundException, GameNotStartedException,
@@ -25,6 +25,7 @@ export class GameService {
   async create(): Promise<CreateGameOutputData> {
     const player1 = await this.gameRepository.createPlayer(Players.ONE);
     const game = await this.gameRepository.create(player1);
+
     return new CreateGameOutputData(game);
   }
 
@@ -55,7 +56,7 @@ export class GameService {
   }) {
     const game = await this.findOneByToken(params.accessToken);
     game.makePlay(params.currentPiecePosition, params.newPiecePosition);
-    await this.gameRepository.reRenderGameState(game);
+    // await this.gameRepository.reRenderGameState(game);
     return this.getBoardState(params.accessToken);
   }
 

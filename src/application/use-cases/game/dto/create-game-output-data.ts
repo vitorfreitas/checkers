@@ -1,4 +1,4 @@
-import { Game } from '../../../../domain/entities/game';
+import { Game } from "src/infrastructure/storage/database/models/game";
 
 export class CreateGameOutputData {
   public accessToken: string;

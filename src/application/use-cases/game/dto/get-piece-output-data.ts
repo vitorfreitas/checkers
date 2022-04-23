@@ -1,4 +1,4 @@
-import { Piece } from "src/domain/entities/piece";
+import { Piece } from "src/infrastructure/storage/database/models/piece"
 
 export class GetPieceOutputData {
   readonly movements: number[][]
@@ -12,6 +12,6 @@ export class GetPieceOutputData {
     this.row = piece.row
     this.column = piece.column
     this.player = `player_${piece.player.playerOrder}`
-    this.isKing = piece.isKing()
+    this.isKing = piece.isKing
   }
 }

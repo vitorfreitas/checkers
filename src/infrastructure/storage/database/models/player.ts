@@ -31,4 +31,8 @@ export class Player {
 
   @OneToMany((type) => Piece, (piece) => piece.player)
   pieces: Piece[];
+
+  isPlayerTurn(turn: number) {
+    return turn === this.playerOrder;
+  }
 }
