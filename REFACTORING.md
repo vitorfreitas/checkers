@@ -8,5 +8,7 @@ Lack of SRP (check all the models and `GameRepositoryDatabase#findOneByAccessTok
 
 ## Roadmap
 
-[ ] Unify models and entities (includes removing unneeded models)
+[x] Unify models and entities (includes removing unneeded models)
+[ ] Fix unit specs
+[ ] Fix e2e specs
 [ ] Remove logic from models
