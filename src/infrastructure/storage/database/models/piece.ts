@@ -1,19 +1,5 @@
-import { equals } from 'ramda'
-import { MAX_ROW_LENGTH, MIN_ROW_LENGTH } from 'src/domain/shared/constants/board';
-import {
-  ChildEntity,
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  TableInheritance,
-} from 'typeorm';
+import { ChildEntity } from 'typeorm';
 import { BasePiece } from './base-piece';
-import { Board } from './board';
-import { Player } from './player';
 
 export type Movement = {
   base: number[];

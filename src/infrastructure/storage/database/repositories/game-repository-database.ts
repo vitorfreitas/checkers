@@ -1,5 +1,5 @@
 import { GameRepository } from '../../../../domain/repositories/game-repository';
-import { Connection, Repository, EntityManager } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
 import { Game } from '../models/game';
 import { Board } from '../models/board';
 import { Piece } from '../models/piece';
@@ -98,20 +98,5 @@ export class GameRepositoryDatabase implements GameRepository {
     });
 
     return board
-  }
-
-  // todo: remove
-  private createPiece(
-    entityManager: EntityManager,
-    board: Board,
-  ) {
-    // const piece = new Piece();
-    // piece.row = tile.row;
-    // piece.column = tile.column;
-    // piece.isKing = tile.getPiece().isKing();
-    // piece.board = board;
-    // piece.player = { id: tile.getPiece().player.id } as Player;
-
-    // return entityManager.save(piece);
   }
 }

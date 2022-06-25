@@ -28,6 +28,8 @@ import { King } from './king'
 import { BasePiece } from './base-piece';
 import { Piece } from './piece';
 
+type PlayerTurn = 0 | 1 | 2;
+
 @Entity()
 export class Board {
   @PrimaryGeneratedColumn()
@@ -192,9 +194,10 @@ export class Board {
 
   static createGrid(player1: Player, player2: Player): BasePiece[][] {
     const players = new Map().set(1, player1).set(2, player2);
+
     return INITIAL_BOARD.map((row, rowIndex) => {
-      return row.map((playerId, columnIndex) => {
-        const player = players.get(playerId);
+      return row.map((playerTurn: PlayerTurn, columnIndex) => {
+        const player = players.get(playerTurn);
 
         if (!player) return null
 
@@ -203,14 +206,9 @@ export class Board {
         piece.column = columnIndex
         piece.player = player
 
-        // todo: piece.save()
         return piece;
       });
     });
-  }
-
-  static createEmptyGrid(): null[][] {
-    return INITIAL_BOARD.map((row) => row.map(() => null));
   }
 
   private makeMovement(piece: BasePiece, [x, y]: [number, number]) {
@@ -224,7 +222,6 @@ export class Board {
     // move to new position
     this.grid[x][y] = piece
     piece.setCoords(x, y)
-    // todo: save piece
 
     if (piece.isEdgeTile()) {
       const updatedPieces = this.pieces.map(p => {
@@ -259,7 +256,6 @@ export class Board {
     const removedPiece = this.grid[jumpedX][jumpedY]
     const updatedPieces = this.pieces.filter(piece => piece !== removedPiece)
     this.pieces = updatedPieces
-    // todo: this.save()
 
     if (piece.isEdgeTile()) {
       piece.makeKing();

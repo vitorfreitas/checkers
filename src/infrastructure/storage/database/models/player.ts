@@ -10,7 +10,6 @@ import {
 } from 'typeorm';
 import { BasePiece } from './base-piece';
 import { Game } from './game';
-import { Piece } from './piece';
 
 @Entity()
 export class Player {
