@@ -1,8 +1,8 @@
-import { Entity } from 'typeorm';
-import { Piece } from './piece';
+import { ChildEntity } from 'typeorm';
+import { BasePiece } from './base-piece';
 
-@Entity()
-export class King extends Piece {
+@ChildEntity()
+export class King extends BasePiece {
   getPossibleMovements() {
     return [
       {
@@ -23,14 +23,5 @@ export class King extends Piece {
       },
     ];
   }
-
-  setCoords(row: number, column: number) {
-    this.row = row;
-    this.column = column;
-  }
-
-  // isKing(): boolean {
-  //   return false;
-  // }
 }
 

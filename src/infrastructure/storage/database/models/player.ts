@@ -8,6 +8,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { BasePiece } from './base-piece';
 import { Game } from './game';
 import { Piece } from './piece';
 
@@ -29,8 +30,8 @@ export class Player {
   @Column()
   playerOrder: number;
 
-  @OneToMany((type) => Piece, (piece) => piece.player)
-  pieces: Piece[];
+  @OneToMany((type) => BasePiece, (piece) => piece.player)
+  pieces: BasePiece[];
 
   isPlayerTurn(turn: number) {
     return turn === this.playerOrder;

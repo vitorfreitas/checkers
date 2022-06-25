@@ -6,6 +6,8 @@ import { Board } from './infrastructure/storage/database/models/board';
 import { Piece } from './infrastructure/storage/database/models/piece';
 import { Player } from './infrastructure/storage/database/models/player';
 import { ConfigModule } from '@nestjs/config';
+import { King } from './infrastructure/storage/database/models/king';
+import { BasePiece } from './infrastructure/storage/database/models/base-piece';
 
 @Module({
   imports: [
@@ -17,7 +19,7 @@ import { ConfigModule } from '@nestjs/config';
       username: process.env.DB_USER,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
-      entities: [Game, Board, Piece, Player],
+      entities: [Game, Board, Piece, Player, King, BasePiece],
       synchronize: false,
       keepConnectionAlive: true,
     }),

@@ -1,4 +1,8 @@
-import { GameNotStartedException, MaxNumberOfPlayersException, UserMustJumpException } from 'src/domain/exceptions';
+import {
+  GameNotStartedException,
+  MaxNumberOfPlayersException,
+  UserMustJumpException
+} from 'src/domain/exceptions';
 import {
   Column,
   CreateDateColumn,
@@ -82,6 +86,7 @@ export class Game {
     const playerTurns = new Map()
       .set(FIRST_PLAYER, SECOND_PLAYER)
       .set(SECOND_PLAYER, FIRST_PLAYER);
+
     this.playerTurn = playerTurns.get(this.playerTurn);
   }
 

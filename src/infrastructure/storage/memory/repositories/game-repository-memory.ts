@@ -23,7 +23,7 @@ export class GameRepositoryMemory implements GameRepository {
     return this.games.find((game) => game.accessToken === accessToken);
   }
 
-  async reRenderGameState(game: Game): Promise<Game> {
+  async update(game: Game): Promise<Game> {
     return game;
   }
 

@@ -22,10 +22,11 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Game } from './game';
-import { Piece } from './piece';
 import { Players } from 'src/domain/shared/constants/game';
 import { Player } from './player';
 import { King } from './king'
+import { BasePiece } from './base-piece';
+import { Piece } from './piece';
 
 @Entity()
 export class Board {
@@ -42,10 +43,10 @@ export class Board {
   @JoinColumn()
   game: Game;
 
-  @OneToMany(() => Piece, (piece) => piece.board)
-  pieces: Piece[];
+  @OneToMany(() => BasePiece, (piece) => piece.board, { cascade: true })
+  pieces: BasePiece[];
 
-  get grid(): (Piece | null)[][] {
+  get grid(): (BasePiece | null)[][] {
     return INITIAL_BOARD.map((row, rowIndex) =>
       row.map((_, columnIndex) => 
         this.pieces.find(
@@ -142,7 +143,7 @@ export class Board {
     });
   }
 
-  getPiece(row: number, column: number): { piece: Piece, movements: number[][] } | null {
+  getPiece(row: number, column: number): { piece: BasePiece, movements: number[][] } | null {
     const piece = this.grid[row][column];
     if (!piece) return null
 
@@ -189,7 +190,7 @@ export class Board {
     return null;
   }
 
-  static createGrid(player1: Player, player2: Player): Piece[][] {
+  static createGrid(player1: Player, player2: Player): BasePiece[][] {
     const players = new Map().set(1, player1).set(2, player2);
     return INITIAL_BOARD.map((row, rowIndex) => {
       return row.map((playerId, columnIndex) => {
@@ -212,12 +213,11 @@ export class Board {
     return INITIAL_BOARD.map((row) => row.map(() => null));
   }
 
-  private makeMovement(piece: Piece, [x, y]: [number, number]) {
+  private makeMovement(piece: BasePiece, [x, y]: [number, number]) {
     const newMovementExists = piece.movements
       .filter(({ base: [row, column] }) => this.isMovementValid(row, column))
       .find((movement) => equals([x, y], movement.base));
     if (!newMovementExists) {
-      console.log(piece)
       throw new InvalidMovementException();
     }
 
@@ -234,7 +234,6 @@ export class Board {
         king.row = piece.row
         king.column = piece.column
         king.player = piece.player
-        king.makeKing()
 
         return king
       })
@@ -243,7 +242,7 @@ export class Board {
     }
   }
 
-  private makeJump(piece: Piece, [x, y]: [number, number]) {
+  private makeJump(piece: BasePiece, [x, y]: [number, number]) {
     const {
       base: [jumpedX, jumpedY],
     } = piece.movements.find(

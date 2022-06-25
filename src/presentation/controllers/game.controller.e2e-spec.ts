@@ -75,7 +75,7 @@ describe('GameController (e2e)', () => {
             oldPosition: move.a,
             newPosition: move.b,
           })
-          .expect(201);
+          .expect(201)
       }
 
       return req

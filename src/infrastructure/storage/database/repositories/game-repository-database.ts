@@ -6,6 +6,8 @@ import { Piece } from '../models/piece';
 import { Player } from '../models/player';
 import { Players } from '../../../../domain/shared/constants/game';
 import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
+import * as randomString from 'randomstring';
+import { BasePiece } from '../models/base-piece';
 
 export class GameRepositoryDatabase implements GameRepository {
   constructor(
@@ -14,7 +16,7 @@ export class GameRepositoryDatabase implements GameRepository {
     @InjectRepository(Board)
     private boardRepository: Repository<Board>,
     @InjectRepository(Piece)
-    private pieceRepository: Repository<Piece>,
+    private pieceRepository: Repository<BasePiece>,
     @InjectRepository(Player)
     private playerRepository: Repository<Player>,
     @InjectConnection() private connection: Connection,
@@ -24,7 +26,9 @@ export class GameRepositoryDatabase implements GameRepository {
     const game = new Game();
     game.players = [player]
     game.playerTurn = player.playerOrder
-    game.accessToken = game.accessToken
+    const code = randomString.generate(4);
+    const accessToken = `${new Date().getFullYear()}${code}`;
+    game.accessToken = game.accessToken || accessToken;
 
     await this.gameRepository.save(game);
     await this.playerRepository.update(player.id, { game });
@@ -35,7 +39,7 @@ export class GameRepositoryDatabase implements GameRepository {
   async findOneByAccessToken(accessToken: string): Promise<Game | undefined> {
     const game = await this.gameRepository.findOne({
       where: { accessToken },
-      relations: ['players'],
+      relations: ['players', 'board', 'board.pieces'],
     });
     if (!game) return undefined;
 
@@ -58,9 +62,12 @@ export class GameRepositoryDatabase implements GameRepository {
     return game;
   }
 
-  // todo: remove
-  async reRenderGameState(game: Game): Promise<Game> {
-    return game
+  async update(game: Game): Promise<Game> {
+    await this.gameRepository.save(game);
+    await this.boardRepository.save(game.board);
+    await this.pieceRepository.save(game.board.pieces);
+
+    return game;
   }
 
   async createPlayer(
@@ -84,6 +91,7 @@ export class GameRepositoryDatabase implements GameRepository {
     const game = await this.gameRepository.findOne({ accessToken });
     const grid = Board.createGrid(player1, player2);
     const pieces = grid.flat().filter(Boolean).flat()
+    await this.pieceRepository.save(pieces);
     const board = await this.boardRepository.save({
       game,
       pieces,
